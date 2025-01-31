@@ -5,6 +5,10 @@ import { VisitTypes } from "../components/VisitForm";
 interface VisitsContextType {
   visits: VisitTypes[];
   setVisits: React.Dispatch<React.SetStateAction<VisitTypes[]>>;
+  editVisit: (
+    id: string,
+    updatedVisit: Partial<Omit<VisitTypes, "id">>
+  ) => void;
 }
 
 const VisitsContext = createContext<VisitsContextType | undefined>(undefined);
@@ -16,6 +20,19 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedVisits = localStorage.getItem("visits");
     return storedVisits ? JSON.parse(storedVisits) : [];
   });
+
+  const editVisit = (
+    id: string,
+    updatedVisit: Partial<Omit<VisitTypes, "id">>
+  ) => {
+    setVisits((prevVisits) =>
+      prevVisits.map((visit) =>
+        visit.id === id
+          ? { ...visit, ...updatedVisit, modifiedAt: new Date().toISOString() }
+          : visit
+      )
+    );
+  };
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
@@ -36,7 +53,7 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [visits]);
 
   return (
-    <VisitsContext.Provider value={{ visits, setVisits }}>
+    <VisitsContext.Provider value={{ visits, setVisits, editVisit }}>
       {children}
     </VisitsContext.Provider>
   );

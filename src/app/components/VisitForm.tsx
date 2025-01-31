@@ -10,6 +10,7 @@ import {
 } from "../constants/optionsData";
 
 export type VisitTypes = {
+  id: string;
   doorNumber: string;
   status?: OptionsType;
   pitchedOption?: OptionsType;
@@ -25,6 +26,7 @@ const VisitForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const visitData: VisitTypes = {
+      id: uniqid("v-"),
       doorNumber,
       status: status,
       pitchedOption: pitchedOption,
