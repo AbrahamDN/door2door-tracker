@@ -12,6 +12,8 @@ export type VisitTypes = {
   status?: OptionsType;
   pitchedOption?: OptionsType;
   createdAt: string;
+  modifiedAt?: string;
+  successfulCallback?: boolean;
 };
 
 const VisitForm = () => {

@@ -17,6 +17,8 @@ interface VisitsContextType {
     notAnswered: number;
     payerUnavailable: number;
     callBacks: number;
+    modified: number;
+    successfulCallbacks: number;
   };
 }
 
@@ -35,11 +37,23 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
     updatedVisit: Partial<Omit<VisitTypes, "id">>
   ) => {
     setVisits((prevVisits) =>
-      prevVisits.map((visit) =>
-        visit.id === id
-          ? { ...visit, ...updatedVisit, modifiedAt: new Date().toISOString() }
-          : visit
-      )
+      prevVisits.map((visit) => {
+        if (visit.id === id) {
+          const isClosed =
+            updatedVisit.status?.value === doorStatusOptions.closed.value;
+          const wasCallback =
+            visit.status?.value === doorStatusOptions.callback.value;
+
+          return {
+            ...visit,
+            ...updatedVisit,
+            lastStatus: visit.status,
+            modifiedAt: new Date().toISOString(),
+            successfulCallback: wasCallback && isClosed ? true : undefined,
+          };
+        }
+        return visit;
+      })
     );
   };
 
@@ -54,6 +68,8 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
       notAnswered: 0,
       payerUnavailable: 0,
       callBacks: 0,
+      modified: 0,
+      successfulCallbacks: 0,
     };
 
     visits.forEach((visit) => {
@@ -75,6 +91,12 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
           break;
         default:
           break;
+      }
+      if (visit.modifiedAt) {
+        stats.modified++;
+      }
+      if (visit.successfulCallback) {
+        stats.successfulCallbacks++;
       }
     });
 
