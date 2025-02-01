@@ -25,7 +25,10 @@ const VisitItem = ({
   };
 
   const handleSave = () => {
-    editVisit(id, editedVisit);
+    editVisit(id, {
+      ...editedVisit,
+      modifiedAt: new Date().toISOString(),
+    });
     setIsEditing(false);
   };
 
