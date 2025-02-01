@@ -10,6 +10,13 @@ interface VisitsContextType {
     updatedVisit: Partial<Omit<VisitTypes, "id">>
   ) => void;
   deleteVisit: (id: string) => void;
+  getVisitStatistics: () => {
+    pitched: number;
+    closed: number;
+    notAnswered: number;
+    payerUnavailable: number;
+    callBacks: number;
+  };
 }
 
 const VisitsContext = createContext<VisitsContextType | undefined>(undefined);
@@ -39,6 +46,40 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
     setVisits((prevVisits) => prevVisits.filter((visit) => visit.id !== id));
   };
 
+  const getVisitStatistics = () => {
+    const stats = {
+      pitched: 0,
+      closed: 0,
+      notAnswered: 0,
+      payerUnavailable: 0,
+      callBacks: 0,
+    };
+
+    visits.forEach((visit) => {
+      switch (visit.status?.value) {
+        case "Pitched":
+          stats.pitched++;
+          break;
+        case "Closed":
+          stats.closed++;
+          break;
+        case "Not Answered":
+          stats.notAnswered++;
+          break;
+        case "Payer Unavailable":
+          stats.payerUnavailable++;
+          break;
+        case "Call Back":
+          stats.callBacks++;
+          break;
+        default:
+          break;
+      }
+    });
+
+    return stats;
+  };
+
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "visits") {
@@ -59,7 +100,7 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <VisitsContext.Provider
-      value={{ visits, setVisits, editVisit, deleteVisit }}
+      value={{ visits, setVisits, editVisit, deleteVisit, getVisitStatistics }}
     >
       {children}
     </VisitsContext.Provider>

@@ -4,6 +4,7 @@ import uniqid from "uniqid";
 
 import { useVisits } from "../context/VisitsContext";
 import VisitItem from "./VisitItem";
+import VisitAnalytics from "./VisitAnalytics";
 
 const VisitList = () => {
   const { visits } = useVisits();
@@ -16,6 +17,8 @@ const VisitList = () => {
           <VisitItem key={uniqid("visit")} visit={visit} />
         ))}
       </ol>
+
+      <VisitAnalytics />
     </div>
   );
 };
