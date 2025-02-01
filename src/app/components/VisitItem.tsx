@@ -12,7 +12,7 @@ export type VisitItemTypes = {
 const VisitItem = ({
   visit: { id, doorNumber, pitchedOption, status },
 }: VisitItemTypes) => {
-  const { editVisit } = useVisits();
+  const { editVisit, deleteVisit } = useVisits();
   const [isEditing, setIsEditing] = useState(false);
   const [editedVisit, setEditedVisit] = useState({
     doorNumber,
@@ -32,6 +32,12 @@ const VisitItem = ({
   const handleCancel = () => {
     setEditedVisit({ doorNumber, status, pitchedOption });
     setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this visit?")) {
+      deleteVisit(id);
+    }
   };
 
   return (
@@ -71,9 +77,17 @@ const VisitItem = ({
             </button>
           </div>
         ) : (
-          <button onClick={() => setIsEditing(true)} className="text-blue-500">
-            Edit
-          </button>
+          <div className="flex gap-2 items-end">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-blue-500"
+            >
+              Edit
+            </button>
+            <button onClick={handleDelete} className="text-red-500">
+              Delete
+            </button>
+          </div>
         )}
       </div>
     </li>

@@ -9,6 +9,7 @@ interface VisitsContextType {
     id: string,
     updatedVisit: Partial<Omit<VisitTypes, "id">>
   ) => void;
+  deleteVisit: (id: string) => void;
 }
 
 const VisitsContext = createContext<VisitsContextType | undefined>(undefined);
@@ -34,6 +35,10 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  const deleteVisit = (id: string) => {
+    setVisits((prevVisits) => prevVisits.filter((visit) => visit.id !== id));
+  };
+
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "visits") {
@@ -53,7 +58,9 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [visits]);
 
   return (
-    <VisitsContext.Provider value={{ visits, setVisits, editVisit }}>
+    <VisitsContext.Provider
+      value={{ visits, setVisits, editVisit, deleteVisit }}
+    >
       {children}
     </VisitsContext.Provider>
   );
