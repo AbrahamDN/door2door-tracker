@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { VisitTypes } from "../components/VisitForm";
+import { doorStatusOptions } from "../constants/optionsData";
 
 interface VisitsContextType {
   visits: VisitTypes[];
@@ -57,19 +58,19 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
 
     visits.forEach((visit) => {
       switch (visit.status?.value) {
-        case "Pitched":
+        case doorStatusOptions.pitched.value:
           stats.pitched++;
           break;
-        case "Closed":
+        case doorStatusOptions.closed.value:
           stats.closed++;
           break;
-        case "Not Answered":
+        case doorStatusOptions.noAnswer.value:
           stats.notAnswered++;
           break;
-        case "Payer Unavailable":
+        case doorStatusOptions.unavailable.value:
           stats.payerUnavailable++;
           break;
-        case "Call Back":
+        case doorStatusOptions.callback.value:
           stats.callBacks++;
           break;
         default:

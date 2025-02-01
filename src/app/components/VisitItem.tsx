@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { VisitTypes } from "./VisitForm";
-import { pitchedOptions } from "../constants/optionsData";
+import { doorStatusOptions, pitchedOptions } from "../constants/optionsData";
 import { useVisits } from "../context/VisitsContext";
 import VisitInputs from "./VisitInputs";
 
@@ -59,8 +59,8 @@ const VisitItem = ({
             <span className="font-bold">{doorNumber}</span>
             <span>
               {status?.closed
-                ? `${pitchedOptions.at(-1)?.icon}${status.icon}`
-                : status?.value === "Pitched"
+                ? `${Object.values(pitchedOptions).at(-1)?.icon}${status.icon}`
+                : status?.value === doorStatusOptions.pitched.value
                 ? pitchedOption?.icon
                 : status?.value}
             </span>

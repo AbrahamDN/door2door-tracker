@@ -20,6 +20,9 @@ const VisitInputs = ({
   onStatusChange,
   onPitchedOptionChange,
 }: VisitInputsProps) => {
+  const doorStatusArray = Object.values(doorStatusOptions);
+  const pitchedOptionsArray = Object.values(pitchedOptions);
+
   return (
     <>
       <DoorNumberInput
@@ -28,22 +31,22 @@ const VisitInputs = ({
       />
       <SelectInput
         value={status?.value || ""}
-        options={doorStatusOptions}
+        options={doorStatusArray}
         onChange={(e) => {
-          const selectedStatus = doorStatusOptions.find(
+          const selectedStatus = doorStatusArray.find(
             (option) => option.value === e.target.value
           );
           onStatusChange(selectedStatus);
         }}
         placeholder="Select Status"
       />
-      {status?.value === "Pitched" && (
+      {status?.value === doorStatusOptions.pitched.value && (
         <SelectInput
           value={pitchedOption?.value || ""}
           placeholder="Select Pitched Option"
-          options={pitchedOptions}
+          options={pitchedOptionsArray}
           onChange={(e) => {
-            const selectedOption = pitchedOptions.find(
+            const selectedOption = pitchedOptionsArray.find(
               (option) => option.value === e.target.value
             );
             onPitchedOptionChange(selectedOption);
