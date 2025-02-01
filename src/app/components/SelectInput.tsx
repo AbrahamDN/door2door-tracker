@@ -1,6 +1,6 @@
 import React from "react";
 import uniqid from "uniqid";
-import { OptionsType } from "../constants/optionsData";
+import { OptionsType } from "../lib/options.constants";
 import clsx from "clsx";
 
 type SelectInputProps = {

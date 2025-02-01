@@ -1,7 +1,7 @@
 import React from "react";
 import SelectInput from "./SelectInput";
 import DoorNumberInput from "./DoorNumberInput";
-import { doorStatusOptions, pitchedOptions } from "../constants/optionsData";
+import { doorStatusOptions, pitchedOptions } from "../lib/options.constants";
 
 type VisitInputsProps = {
   doorNumber: string;

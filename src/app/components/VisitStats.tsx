@@ -1,5 +1,5 @@
 "use client";
-import { doorStatusOptions as dso } from "../constants/optionsData";
+import { doorStatusOptions as dso } from "../lib/options.constants";
 import { useVisits } from "../context/VisitsContext";
 import VisitStat from "./VisitStat";
 

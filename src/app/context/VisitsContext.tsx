@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { VisitTypes } from "../components/VisitForm";
-import { doorStatusOptions } from "../constants/optionsData";
+import { doorStatusOptions } from "../lib/options.constants";
 
 interface VisitStorage {
   visits: VisitTypes[];

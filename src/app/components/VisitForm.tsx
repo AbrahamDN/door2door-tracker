@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import uniqid from "uniqid";
 
 import { useVisits } from "../context/VisitsContext";
-import { OptionsType } from "../constants/optionsData";
+import { OptionsType } from "../lib/options.constants";
 import VisitInputs from "./VisitInputs";
 
 export type VisitTypes = {

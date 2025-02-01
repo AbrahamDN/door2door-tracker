@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 import { VisitTypes } from "./VisitForm";
-import { doorStatusOptions, pitchedOptions } from "../constants/optionsData";
+import { doorStatusOptions, pitchedOptions } from "../lib/options.constants";
 import { useVisits } from "../context/VisitsContext";
 import VisitInputs from "./VisitInputs";
 
