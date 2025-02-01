@@ -10,7 +10,6 @@ import {
 } from "../constants/optionsData";
 import SelectInput from "./SelectInput";
 import DoorNumberInput from "./DoorNumberInput";
-import VisitInputs from "./VisitInputs";
 
 export type VisitTypes = {
   id: string;
@@ -48,14 +47,36 @@ const VisitForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <VisitInputs
-        doorNumber={doorNumber}
-        status={status}
-        pitchedOption={pitchedOption}
-        onDoorNumberChange={setDoorNumber}
-        onStatusChange={setStatus}
-        onPitchedOptionChange={setPitchedOption}
+      <DoorNumberInput
+        value={doorNumber}
+        onChange={(e) => setDoorNumber(e.target.value)}
       />
+      <SelectInput
+        value={status?.value || ""}
+        options={doorStatusOptions}
+        onChange={(e) => {
+          const selectedStatus = doorStatusOptions.find(
+            (option) => option.value === e.target.value
+          );
+          setStatus(selectedStatus);
+        }}
+        placeholder="Select Status"
+        required
+      />
+
+      {status?.value === "Pitched" && (
+        <SelectInput
+          value={pitchedOption?.value || ""}
+          placeholder="Select Pitched Option"
+          options={pitchedOptions}
+          onChange={(e) => {
+            const selectedOption = pitchedOptions.find(
+              (option) => option.value === e.target.value
+            );
+            setPitchedOption(selectedOption);
+          }}
+        />
+      )}
       <button type="submit">Save</button>
     </form>
   );
