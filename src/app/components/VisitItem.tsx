@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 
 import { VisitTypes } from "./VisitForm";
-import { pitchedOptions, doorStatusOptions } from "../constants/optionsData";
+import { pitchedOptions } from "../constants/optionsData";
 import { useVisits } from "../context/VisitsContext";
-import SelectInput from "./SelectInput";
-import DoorNumberInput from "./DoorNumberInput";
+import VisitInputs from "./VisitInputs";
 
 export type VisitItemTypes = {
   visit: VisitTypes;
@@ -39,36 +38,16 @@ const VisitItem = ({
     <li className="mb-2">
       <div className="grid grid-cols-3 gap-2">
         {isEditing ? (
-          <>
-            <DoorNumberInput
-              value={editedVisit.doorNumber}
-              onChange={(e) => handleChange("doorNumber", e.target.value)}
-            />
-            <SelectInput
-              value={editedVisit.status?.value || ""}
-              onChange={(e) => {
-                const selectedStatus = doorStatusOptions.find(
-                  (option) => option.value === e.target.value
-                );
-                handleChange("status", selectedStatus);
-              }}
-              options={doorStatusOptions}
-              placeholder="Select status"
-            />
-            {editedVisit.status?.value === "Pitched" && (
-              <SelectInput
-                value={editedVisit.pitchedOption?.value || ""}
-                onChange={(e) => {
-                  const selectedOption = pitchedOptions.find(
-                    (option) => option.value === e.target.value
-                  );
-                  handleChange("pitchedOption", selectedOption);
-                }}
-                options={pitchedOptions}
-                placeholder="Select pitched option"
-              />
-            )}
-          </>
+          <VisitInputs
+            doorNumber={editedVisit.doorNumber}
+            status={editedVisit.status}
+            pitchedOption={editedVisit.pitchedOption}
+            onDoorNumberChange={(value) => handleChange("doorNumber", value)}
+            onStatusChange={(value) => handleChange("status", value)}
+            onPitchedOptionChange={(value) =>
+              handleChange("pitchedOption", value)
+            }
+          />
         ) : (
           <>
             <span className="font-bold">{doorNumber}</span>
@@ -83,14 +62,14 @@ const VisitItem = ({
         )}
 
         {isEditing ? (
-          <>
+          <div className="flex gap-2 items-end">
             <button onClick={handleSave} className="text-green-500">
               Save
             </button>
             <button onClick={handleCancel} className="text-red-500">
               Cancel
             </button>
-          </>
+          </div>
         ) : (
           <button onClick={() => setIsEditing(true)} className="text-blue-500">
             Edit
