@@ -2,6 +2,13 @@ import React from "react";
 import SelectInput from "./SelectInput";
 import DoorNumberInput from "./DoorNumberInput";
 import { doorStatusOptions, pitchedOptions } from "../lib/options.constants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type VisitInputsProps = {
   doorNumber: string;
@@ -32,25 +39,27 @@ const VisitInputs = ({
       <SelectInput
         value={status?.value || ""}
         options={doorStatusArray}
-        onChange={(e) => {
+        onValueChange={(value) => {
           const selectedStatus = doorStatusArray.find(
-            (option) => option.value === e.target.value
+            (option) => option.value === value
           );
           onStatusChange(selectedStatus);
         }}
         placeholder="Select Status"
+        required
       />
       {status?.value === doorStatusOptions.pitched.value && (
         <SelectInput
           value={pitchedOption?.value || ""}
           placeholder="Select Pitched Option"
           options={pitchedOptionsArray}
-          onChange={(e) => {
+          onValueChange={(value) => {
             const selectedOption = pitchedOptionsArray.find(
-              (option) => option.value === e.target.value
+              (option) => option.value === value
             );
             onPitchedOptionChange(selectedOption);
           }}
+          required
         />
       )}
     </>

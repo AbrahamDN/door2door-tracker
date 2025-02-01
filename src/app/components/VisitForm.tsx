@@ -5,6 +5,7 @@ import uniqid from "uniqid";
 import { useVisits } from "../context/VisitsContext";
 import { OptionsType } from "../lib/options.constants";
 import VisitInputs from "./VisitInputs";
+import { Button } from "@/components/ui/button";
 
 export type VisitTypes = {
   id: string;
@@ -52,7 +53,7 @@ const VisitForm = () => {
         onStatusChange={setStatus}
         onPitchedOptionChange={setPitchedOption}
       />
-      <button type="submit">Save</button>
+      <Button type="submit">Save</Button>
     </form>
   );
 };

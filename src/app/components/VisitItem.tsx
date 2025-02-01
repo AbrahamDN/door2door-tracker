@@ -4,6 +4,7 @@ import { VisitTypes } from "./VisitForm";
 import { doorStatusOptions, pitchedOptions } from "../lib/options.constants";
 import { useVisits } from "../context/VisitsContext";
 import VisitInputs from "./VisitInputs";
+import { Button } from "@/components/ui/button";
 
 export type VisitItemTypes = {
   visit: VisitTypes;
@@ -72,12 +73,12 @@ const VisitItem = ({
 
         {isEditing ? (
           <div className="flex gap-2 items-end">
-            <button onClick={handleSave} className="text-green-500">
+            <Button onClick={handleSave} className="bg-green-500">
               Save
-            </button>
-            <button onClick={handleCancel} className="text-red-500">
+            </Button>
+            <Button onClick={handleCancel} className="bg-red-500">
               Cancel
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex gap-2 items-end">

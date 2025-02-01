@@ -5,6 +5,8 @@ import uniqid from "uniqid";
 import { useVisits } from "../context/VisitsContext";
 import VisitItem from "./VisitItem";
 import VisitStats from "./VisitStats";
+import { Button } from "@/components/ui/button";
+import { TrashIcon } from "lucide-react";
 
 const VisitList = () => {
   const { visits, clearAll } = useVisits();
@@ -21,21 +23,20 @@ const VisitList = () => {
 
   return (
     <div className="mt-4">
-      <h2>Visits: {visits.length}</h2>
+      <h2>Total: {visits.length}</h2>
       <ol className="list-decimal pl-5">
         {visits.map((visit) => (
           <VisitItem key={uniqid("visit")} visit={visit} />
         ))}
       </ol>
 
-      <VisitStats />
-
-      <button
+      <Button
         onClick={handleClearAll}
-        className="fixed right-4 bottom-4 bg-red-500 hover:bg-red-600 p-2 rounded-full font-medium text-white"
+        className="fixed right-4 bottom-4"
+        variant="destructive"
       >
-        Clear all
-      </button>
+        Clear all <TrashIcon className="w-4 h-4" />
+      </Button>
     </div>
   );
 };

@@ -1,11 +1,16 @@
 import React from "react";
-import uniqid from "uniqid";
 import { OptionsType } from "../lib/options.constants";
-import clsx from "clsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type SelectInputProps = {
   className?: string;
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  onValueChange: (value: string) => void;
   options: OptionsType[];
   placeholder: string;
   required?: boolean;
@@ -14,26 +19,27 @@ type SelectInputProps = {
 
 const SelectInput: React.FC<SelectInputProps> = ({
   className,
-  onChange,
+  onValueChange,
   options,
   placeholder,
   required = false,
   value,
 }) => {
   return (
-    <select
-      className={clsx("border p-1", className)}
-      onChange={(e) => onChange(e)}
-      required={required}
-      value={value}
-    >
-      <option value="">{placeholder}</option>
-      {options.map(({ value }) => (
-        <option key={uniqid("option")} value={value}>
-          {value}
-        </option>
-      ))}
-    </select>
+    <Select value={value} onValueChange={onValueChange} required={required}>
+      <SelectTrigger
+        className={`${className} ${!value && required ? "border-red-500" : ""}`}
+      >
+        <SelectValue placeholder={placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.map(({ value }) => (
+          <SelectItem key={value} value={value}>
+            {value}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

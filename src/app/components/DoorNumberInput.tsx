@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import React from "react";
 
 type DoorNumberInputProps = {
@@ -12,7 +13,7 @@ const DoorNumberInput: React.FC<DoorNumberInputProps> = ({
   value,
 }) => {
   return (
-    <input
+    <Input
       onChange={(e) => onChange(e)}
       placeholder={placeholder}
       required
