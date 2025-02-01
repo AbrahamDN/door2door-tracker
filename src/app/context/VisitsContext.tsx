@@ -3,15 +3,9 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { VisitTypes } from "../components/VisitForm";
 import { doorStatusOptions } from "../constants/optionsData";
 
-interface VisitsContextType {
+interface VisitStorage {
   visits: VisitTypes[];
-  setVisits: React.Dispatch<React.SetStateAction<VisitTypes[]>>;
-  editVisit: (
-    id: string,
-    updatedVisit: Partial<Omit<VisitTypes, "id">>
-  ) => void;
-  deleteVisit: (id: string) => void;
-  getVisitStatistics: () => {
+  statistics: {
     pitched: number;
     closed: number;
     notAnswered: number;
@@ -20,6 +14,34 @@ interface VisitsContextType {
     modified: number;
     successfulCallbacks: number;
   };
+  createdAt: string;
+}
+
+interface Visit {
+  visits: VisitTypes[];
+  statistics: {
+    pitched: number;
+    closed: number;
+    notAnswered: number;
+    payerUnavailable: number;
+    callBacks: number;
+    modified: number;
+    successfulCallbacks: number;
+  };
+  createdAt: string;
+}
+
+interface VisitsContextType {
+  visits: VisitTypes[];
+  visit: Visit;
+  setVisits: React.Dispatch<React.SetStateAction<VisitTypes[]>>;
+  setVisit: React.Dispatch<React.SetStateAction<Visit>>;
+  editVisit: (
+    id: string,
+    updatedVisit: Partial<Omit<VisitTypes, "id">>
+  ) => void;
+  deleteVisit: (id: string) => void;
+  getVisitStatistics: () => Visit["statistics"];
 }
 
 const VisitsContext = createContext<VisitsContextType | undefined>(undefined);
@@ -27,10 +49,55 @@ const VisitsContext = createContext<VisitsContextType | undefined>(undefined);
 export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [visits, setVisits] = useState<VisitTypes[]>(() => {
-    const storedVisits = localStorage.getItem("visits");
-    return storedVisits ? JSON.parse(storedVisits) : [];
+  const [visit, setVisit] = useState<Visit>(() => {
+    const stored = localStorage.getItem("visit");
+    return stored
+      ? JSON.parse(stored)
+      : {
+          visits: [],
+          statistics: {
+            pitched: 0,
+            closed: 0,
+            notAnswered: 0,
+            payerUnavailable: 0,
+            callBacks: 0,
+            modified: 0,
+            successfulCallbacks: 0,
+          },
+          createdAt: new Date().toISOString(),
+        };
   });
+
+  const [currentVisit, setCurrentVisit] = useState<Visit>(() => {
+    const stored = localStorage.getItem("currentVisit");
+    return stored
+      ? JSON.parse(stored)
+      : {
+          visits: [],
+          statistics: {
+            pitched: 0,
+            closed: 0,
+            notAnswered: 0,
+            payerUnavailable: 0,
+            callBacks: 0,
+            modified: 0,
+            successfulCallbacks: 0,
+          },
+          createdAt: new Date().toISOString(),
+        };
+  });
+
+  const setVisits = (
+    visitsOrUpdater: VisitTypes[] | ((prev: VisitTypes[]) => VisitTypes[])
+  ) => {
+    setVisit((prev) => ({
+      ...prev,
+      visits:
+        typeof visitsOrUpdater === "function"
+          ? visitsOrUpdater(prev.visits)
+          : visitsOrUpdater,
+    }));
+  };
 
   const editVisit = (
     id: string,
@@ -72,7 +139,7 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
       successfulCallbacks: 0,
     };
 
-    visits.forEach((visit) => {
+    visit.visits.forEach((visit) => {
       switch (visit.status?.value) {
         case doorStatusOptions.pitched.value:
           stats.pitched++;
@@ -105,25 +172,55 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "visits") {
-        setVisits(JSON.parse(e.newValue || "[]"));
+      if (e.key === "visit") {
+        setVisit(
+          JSON.parse(
+            e.newValue ||
+              JSON.stringify({
+                visits: [],
+                statistics: getVisitStatistics(),
+                createdAt: new Date().toISOString(),
+              })
+          )
+        );
       }
     };
 
     window.addEventListener("storage", handleStorageChange);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-    };
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("visits", JSON.stringify(visits));
-  }, [visits]);
+    localStorage.setItem(
+      "visit",
+      JSON.stringify({
+        ...visit,
+        statistics: getVisitStatistics(),
+      })
+    );
+  }, [visit.visits]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "currentVisit",
+      JSON.stringify({
+        ...currentVisit,
+        statistics: getVisitStatistics(),
+      })
+    );
+  }, [currentVisit.visits]);
 
   return (
     <VisitsContext.Provider
-      value={{ visits, setVisits, editVisit, deleteVisit, getVisitStatistics }}
+      value={{
+        visits: visit.visits,
+        visit: currentVisit,
+        setVisits,
+        setVisit: setCurrentVisit,
+        editVisit,
+        deleteVisit,
+        getVisitStatistics,
+      }}
     >
       {children}
     </VisitsContext.Provider>
