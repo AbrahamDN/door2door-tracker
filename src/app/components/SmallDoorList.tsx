@@ -13,6 +13,7 @@ const SmallDoorsList = ({
   title = "View Doors",
   visits,
 }: SmallDoorsListProps) => {
+  if (visits.filter(filterFn).length === 0) return null;
   return (
     <details className="text-sm italic text-gray-500">
       <summary className="cursor-pointer">{title}</summary>

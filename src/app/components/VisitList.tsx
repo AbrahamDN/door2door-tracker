@@ -7,7 +7,17 @@ import VisitItem from "./VisitItem";
 import VisitStats from "./VisitStats";
 
 const VisitList = () => {
-  const { visits } = useVisits();
+  const { visits, clearAll } = useVisits();
+
+  const handleClearAll = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to clear all visits? This action cannot be undone."
+      )
+    ) {
+      clearAll();
+    }
+  };
 
   return (
     <div className="mt-4">
@@ -19,6 +29,13 @@ const VisitList = () => {
       </ol>
 
       <VisitStats />
+
+      <button
+        onClick={handleClearAll}
+        className="fixed right-4 bottom-4 bg-red-500 hover:bg-red-600 p-2 rounded-full font-medium text-white"
+      >
+        Clear all
+      </button>
     </div>
   );
 };

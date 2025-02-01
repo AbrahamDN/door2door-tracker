@@ -42,6 +42,7 @@ interface VisitsContextType {
   ) => void;
   deleteVisit: (id: string) => void;
   getVisitStatistics: () => Visit["statistics"];
+  clearAll: () => void;
 }
 
 const VisitsContext = createContext<VisitsContextType | undefined>(undefined);
@@ -170,6 +171,22 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
     return stats;
   };
 
+  const clearAll = () => {
+    setVisit((prev) => ({
+      ...prev,
+      visits: [],
+      statistics: {
+        pitched: 0,
+        closed: 0,
+        notAnswered: 0,
+        payerUnavailable: 0,
+        callBacks: 0,
+        modified: 0,
+        successfulCallbacks: 0,
+      },
+    }));
+  };
+
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === "visit") {
@@ -220,6 +237,7 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
         editVisit,
         deleteVisit,
         getVisitStatistics,
+        clearAll,
       }}
     >
       {children}
