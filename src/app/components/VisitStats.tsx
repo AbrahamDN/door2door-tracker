@@ -3,7 +3,7 @@ import React from "react";
 import { useVisits } from "../context/VisitsContext";
 import { doorStatusOptions as dso } from "../constants/optionsData";
 
-const VisitAnalytics = () => {
+const VisitStats = () => {
   const { getVisitStatistics } = useVisits();
   const stats = getVisitStatistics();
 
@@ -39,4 +39,4 @@ const VisitAnalytics = () => {
   );
 };
 
-export default VisitAnalytics;
+export default VisitStats;

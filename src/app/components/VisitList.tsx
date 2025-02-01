@@ -4,7 +4,7 @@ import uniqid from "uniqid";
 
 import { useVisits } from "../context/VisitsContext";
 import VisitItem from "./VisitItem";
-import VisitAnalytics from "./VisitAnalytics";
+import VisitStats from "./VisitStats";
 
 const VisitList = () => {
   const { visits } = useVisits();
@@ -18,7 +18,7 @@ const VisitList = () => {
         ))}
       </ol>
 
-      <VisitAnalytics />
+      <VisitStats />
     </div>
   );
 };
