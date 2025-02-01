@@ -3,6 +3,8 @@ import React, { useState } from "react";
 import { VisitTypes } from "./VisitForm";
 import { pitchedOptions, doorStatusOptions } from "../constants/optionsData";
 import { useVisits } from "../context/VisitsContext";
+import SelectInput from "./SelectInput";
+import DoorNumberInput from "./DoorNumberInput";
 
 export type VisitItemTypes = {
   visit: VisitTypes;
@@ -38,13 +40,11 @@ const VisitItem = ({
       <div className="grid grid-cols-3 gap-2">
         {isEditing ? (
           <>
-            <input
-              type="text"
+            <DoorNumberInput
               value={editedVisit.doorNumber}
               onChange={(e) => handleChange("doorNumber", e.target.value)}
-              className="border p-1"
             />
-            <select
+            <SelectInput
               value={editedVisit.status?.value || ""}
               onChange={(e) => {
                 const selectedStatus = doorStatusOptions.find(
@@ -52,17 +52,11 @@ const VisitItem = ({
                 );
                 handleChange("status", selectedStatus);
               }}
-              className="border p-1"
-            >
-              <option value="">Select Status</option>
-              {doorStatusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.value}
-                </option>
-              ))}
-            </select>
+              options={doorStatusOptions}
+              placeholder="Select status"
+            />
             {editedVisit.status?.value === "Pitched" && (
-              <select
+              <SelectInput
                 value={editedVisit.pitchedOption?.value || ""}
                 onChange={(e) => {
                   const selectedOption = pitchedOptions.find(
@@ -70,15 +64,9 @@ const VisitItem = ({
                   );
                   handleChange("pitchedOption", selectedOption);
                 }}
-                className="border p-1"
-              >
-                <option value="">Select Pitched Option</option>
-                {pitchedOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.value}
-                  </option>
-                ))}
-              </select>
+                options={pitchedOptions}
+                placeholder="Select pitched option"
+              />
             )}
           </>
         ) : (

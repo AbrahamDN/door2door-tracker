@@ -8,6 +8,8 @@ import {
   OptionsType,
   pitchedOptions,
 } from "../constants/optionsData";
+import SelectInput from "./SelectInput";
+import DoorNumberInput from "./DoorNumberInput";
 
 export type VisitTypes = {
   id: string;
@@ -45,47 +47,35 @@ const VisitForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="text"
+      <DoorNumberInput
         value={doorNumber}
         onChange={(e) => setDoorNumber(e.target.value)}
-        placeholder="Door Number"
-        required
       />
-      <select
+      <SelectInput
         value={status?.value || ""}
+        options={doorStatusOptions}
         onChange={(e) => {
           const selectedStatus = doorStatusOptions.find(
             (option) => option.value === e.target.value
           );
           setStatus(selectedStatus);
         }}
+        placeholder="Select Status"
         required
-      >
-        <option value="">Select Status</option>
-        {doorStatusOptions.map((option, index) => (
-          <option key={uniqid("status")} value={option.value}>
-            {option.value}
-          </option>
-        ))}
-      </select>
+      />
+
       {status?.value === "Pitched" && (
-        <select
+        <SelectInput
           value={pitchedOption?.value || ""}
+          placeholder="Select Pitched Option"
+          options={pitchedOptions}
           onChange={(e) => {
             const selectedOption = pitchedOptions.find(
               (option) => option.value === e.target.value
             );
             setPitchedOption(selectedOption);
           }}
-        >
-          <option value="">Select Pitched Option</option>
-          {pitchedOptions.map((option, index) => (
-            <option key={uniqid("pitch")} value={option.value}>
-              {option.value}
-            </option>
-          ))}
-        </select>
+        />
       )}
       <button type="submit">Save</button>
     </form>
