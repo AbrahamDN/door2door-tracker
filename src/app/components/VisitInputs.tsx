@@ -1,22 +1,18 @@
-import React from "react";
-import SelectInput from "./SelectInput";
-import DoorNumberInput from "./DoorNumberInput";
-import { doorStatusOptions, pitchedOptions } from "../lib/options.constants";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  doorStatusOptions,
+  OptionsType,
+  pitchedOptions,
+} from "../lib/options.constants";
+import DoorNumberInput from "./DoorNumberInput";
+import SelectInput from "./SelectInput";
 
 type VisitInputsProps = {
   doorNumber: string;
-  status: any;
-  pitchedOption: any;
+  status: OptionsType | undefined;
+  pitchedOption: OptionsType | undefined;
   onDoorNumberChange: (value: string) => void;
-  onStatusChange: (value: any) => void;
-  onPitchedOptionChange: (value: any) => void;
+  onStatusChange: (value?: OptionsType | undefined) => void;
+  onPitchedOptionChange: (value?: OptionsType | undefined) => void;
 };
 
 const VisitInputs = ({

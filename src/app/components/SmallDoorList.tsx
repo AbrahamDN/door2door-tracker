@@ -1,7 +1,6 @@
-import uniqid from "uniqid";
-import Pill from "./Pill";
-import { VisitTypes } from "./VisitForm";
 import { Badge } from "@/components/ui/badge";
+import uniqid from "uniqid";
+import { VisitTypes } from "./VisitForm";
 
 interface SmallDoorsListProps {
   filterFn?: (visit: VisitTypes) => boolean;

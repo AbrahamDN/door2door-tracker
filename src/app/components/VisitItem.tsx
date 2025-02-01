@@ -21,7 +21,10 @@ const VisitItem = ({
     pitchedOption,
   });
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (
+    field: keyof typeof editedVisit,
+    value: (typeof editedVisit)[keyof typeof editedVisit]
+  ) => {
     setEditedVisit((prev) => ({ ...prev, [field]: value }));
   };
 

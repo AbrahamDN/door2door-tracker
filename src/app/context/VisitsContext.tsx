@@ -3,20 +3,6 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { VisitTypes } from "../components/VisitForm";
 import { doorStatusOptions } from "../lib/options.constants";
 
-interface VisitStorage {
-  visits: VisitTypes[];
-  statistics: {
-    pitched: number;
-    closed: number;
-    notAnswered: number;
-    payerUnavailable: number;
-    callBacks: number;
-    modified: number;
-    successfulCallbacks: number;
-  };
-  createdAt: string;
-}
-
 interface Visit {
   visits: VisitTypes[];
   statistics: {
@@ -51,41 +37,71 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [visit, setVisit] = useState<Visit>(() => {
-    const stored = localStorage.getItem("visit");
-    return stored
-      ? JSON.parse(stored)
-      : {
-          visits: [],
-          statistics: {
-            pitched: 0,
-            closed: 0,
-            notAnswered: 0,
-            payerUnavailable: 0,
-            callBacks: 0,
-            modified: 0,
-            successfulCallbacks: 0,
-          },
-          createdAt: new Date().toISOString(),
-        };
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("visit");
+      return stored
+        ? JSON.parse(stored)
+        : {
+            visits: [],
+            statistics: {
+              pitched: 0,
+              closed: 0,
+              notAnswered: 0,
+              payerUnavailable: 0,
+              callBacks: 0,
+              modified: 0,
+              successfulCallbacks: 0,
+            },
+            createdAt: new Date().toISOString(),
+          };
+    }
+    return {
+      visits: [],
+      statistics: {
+        pitched: 0,
+        closed: 0,
+        notAnswered: 0,
+        payerUnavailable: 0,
+        callBacks: 0,
+        modified: 0,
+        successfulCallbacks: 0,
+      },
+      createdAt: new Date().toISOString(),
+    };
   });
 
   const [currentVisit, setCurrentVisit] = useState<Visit>(() => {
-    const stored = localStorage.getItem("currentVisit");
-    return stored
-      ? JSON.parse(stored)
-      : {
-          visits: [],
-          statistics: {
-            pitched: 0,
-            closed: 0,
-            notAnswered: 0,
-            payerUnavailable: 0,
-            callBacks: 0,
-            modified: 0,
-            successfulCallbacks: 0,
-          },
-          createdAt: new Date().toISOString(),
-        };
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("currentVisit");
+      return stored
+        ? JSON.parse(stored)
+        : {
+            visits: [],
+            statistics: {
+              pitched: 0,
+              closed: 0,
+              notAnswered: 0,
+              payerUnavailable: 0,
+              callBacks: 0,
+              modified: 0,
+              successfulCallbacks: 0,
+            },
+            createdAt: new Date().toISOString(),
+          };
+    }
+    return {
+      visits: [],
+      statistics: {
+        pitched: 0,
+        closed: 0,
+        notAnswered: 0,
+        payerUnavailable: 0,
+        callBacks: 0,
+        modified: 0,
+        successfulCallbacks: 0,
+      },
+      createdAt: new Date().toISOString(),
+    };
   });
 
   const setVisits = (
@@ -208,23 +224,27 @@ export const VisitsProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(
-      "visit",
-      JSON.stringify({
-        ...visit,
-        statistics: getVisitStatistics(),
-      })
-    );
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "visit",
+        JSON.stringify({
+          ...visit,
+          statistics: getVisitStatistics(),
+        })
+      );
+    }
   }, [visit.visits]);
 
   useEffect(() => {
-    localStorage.setItem(
-      "currentVisit",
-      JSON.stringify({
-        ...currentVisit,
-        statistics: getVisitStatistics(),
-      })
-    );
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "currentVisit",
+        JSON.stringify({
+          ...currentVisit,
+          statistics: getVisitStatistics(),
+        })
+      );
+    }
   }, [currentVisit.visits]);
 
   return (

@@ -1,12 +1,10 @@
 "use client";
-import React from "react";
 import uniqid from "uniqid";
 
-import { useVisits } from "../context/VisitsContext";
-import VisitItem from "./VisitItem";
-import VisitStats from "./VisitStats";
 import { Button } from "@/components/ui/button";
 import { TrashIcon } from "lucide-react";
+import { useVisits } from "../context/VisitsContext";
+import VisitItem from "./VisitItem";
 
 const VisitList = () => {
   const { visits, clearAll } = useVisits();
