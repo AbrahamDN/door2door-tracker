@@ -34,13 +34,22 @@ const formSchema = z
         /^[a-zA-Z0-9]+([-\/][a-zA-Z0-9]+)*$/,
         "Invalid door number. Only alphanumeric characters, single hyphens (-), or slashes (/) are allowed."
       ),
-    status: z.string().min(1, { message: "Status is required" }),
-    pitchedProgress: z.string().optional(),
+    status: z.object({
+      value: z.string(),
+      icon: z.string(),
+      closed: z.boolean().optional(),
+    }),
+    pitchedProgress: z
+      .object({
+        value: z.string(),
+        icon: z.string(),
+      })
+      .optional(),
   })
   .refine(
     (data) => {
       // If the status is "Pitched", ensure that pitchedProgress is provided
-      if (data.status === doorStatusOptions.pitched.value) {
+      if (data.status.value === doorStatusOptions.pitched.value) {
         return !!data.pitchedProgress;
       }
       return true; // No validation error if status is not "Pitched"
@@ -69,7 +78,7 @@ export default function DoorForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       doorNumber: "",
-      status: "",
+      status: doorStatusOptions.noAnswer, // Default to "No Answer"
       pitchedProgress: undefined,
     },
   });
@@ -133,7 +142,17 @@ export default function DoorForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => {
+                      const selectedStatus = Object.values(
+                        doorStatusOptions
+                      ).find((option) => option.value === value);
+                      if (selectedStatus) {
+                        field.onChange(selectedStatus);
+                      }
+                    }}
+                    value={field.value?.value || ""}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
@@ -156,14 +175,24 @@ export default function DoorForm({
           </div>
 
           {/* Conditional Pitched Progress Field */}
-          {form.watch("status") === doorStatusOptions.pitched.value && (
+          {form.watch("status")?.value === doorStatusOptions.pitched.value && (
             <FormField
               control={form.control}
               name="pitchedProgress"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Pitched Progress</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={(value) => {
+                      const selectedProgress = Object.values(
+                        pitchedOptions
+                      ).find((option) => option.value === value);
+                      if (selectedProgress) {
+                        field.onChange(selectedProgress);
+                      }
+                    }}
+                    value={field.value?.value || ""}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select progress" />
