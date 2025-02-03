@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+// src/context/OutreachContext.tsx
+import { OptionsType } from "@/app/lib/options.constants";
+import { calculateStatistics, Statistic } from "@/app/utils/statisticsHelper";
+import { debounce } from "lodash";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import uniqid from "uniqid";
-import {
-  doorStatusOptions,
-  pitchedOptions,
-  OptionsType,
-} from "@/app/lib/options.constants";
+import { z } from "zod";
 
 // Define the shape of a Door object
-interface Door {
+export interface Door {
   id: string;
   createdAt: Date | string;
   editedAt?: Date | string;
@@ -18,12 +18,6 @@ interface Door {
   prevStatus?: OptionsType;
   pitchedProgress?: OptionsType;
   successfulCallback?: boolean;
-}
-
-// Define the shape of the Statistics object
-interface Statistic {
-  count: number;
-  doorIds: string[];
 }
 
 // Define the shape of the Outreach object
@@ -43,80 +37,154 @@ interface Outreach {
   };
 }
 
+// Validation schema for Door data
+const doorSchema = z.object({
+  doorNumber: z.string().min(1, "Door number is required"),
+  postcodePrefix: z.string().min(1, "Postcode prefix is required"),
+  streetName: z.string().optional(),
+  status: z
+    .object({
+      value: z.string(),
+      icon: z.string(),
+      closed: z.boolean().optional(),
+    })
+    .optional(),
+  prevStatus: z
+    .object({
+      value: z.string(),
+      icon: z.string(),
+      closed: z.boolean().optional(),
+    })
+    .optional(),
+  pitchedProgress: z
+    .object({
+      value: z.string(),
+      icon: z.string(),
+    })
+    .optional(),
+  successfulCallback: z.boolean().optional(),
+});
+
+// Default outreach object
+const defaultOutreach: Outreach = {
+  id: uniqid(),
+  createdAt: new Date().toISOString(),
+  postCodePrefix: "",
+  doors: [],
+  statistics: {
+    callBacks: { count: 0, doorIds: [] },
+    closed: { count: 0, doorIds: [] },
+    edited: { count: 0, doorIds: [] },
+    notAnswered: { count: 0, doorIds: [] },
+    payerUnavailable: { count: 0, doorIds: [] },
+    pitched: { count: 0, doorIds: [] },
+    successfulCallbacks: { count: 0, doorIds: [] },
+  },
+};
+
 // Create the context
-const OutreachContext = createContext<{
-  outreach: Outreach;
-  updatePostCodePrefix: (postCodePrefix: string) => void;
-  addDoor: (door: Omit<Door, "id" | "createdAt">) => void;
-  updateDoor: (id: string, updatedData: Partial<Door>) => void;
-  deleteDoor: (id: string) => void;
-  resetOutreach: () => void;
-} | null>(null);
+const OutreachContext = createContext({
+  outreach: defaultOutreach,
+  updatePostCodePrefix: (_postCodePrefix: string) => {},
+  addDoor: (_door: Omit<Door, "id" | "createdAt">) => {},
+  updateDoor: (_id: string, _updatedData: Partial<Door>) => {},
+  deleteDoor: (_id: string) => {},
+  resetOutreach: () => {},
+});
 
 // Custom hook to use the context
 export const useOutreach = () => {
-  const context = useContext(OutreachContext);
-  if (!context) {
-    throw new Error("useOutreach must be used within an OutreachProvider");
-  }
-  return context;
+  return useContext(OutreachContext);
 };
 
 // Provider component
 export const OutreachProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // Initialize state from localStorage or default to a new outreach object
-  const [outreach, setOutreach] = useState<Outreach>(() => {
-    const savedOutreach = localStorage.getItem("outreach");
-    if (savedOutreach) {
-      return JSON.parse(savedOutreach);
+  // Initialize state with fallback for localStorage errors
+  const getInitialOutreach = (): Outreach => {
+    try {
+      const savedOutreach = localStorage.getItem("outreach");
+      if (savedOutreach) {
+        return JSON.parse(savedOutreach);
+      }
+    } catch (error) {
+      console.error("Error reading from localStorage:", error);
     }
-    return {
-      id: uniqid(),
-      createdAt: new Date().toISOString(),
-      postCodePrefix: "",
-      doors: [],
-      statistics: {
-        callBacks: { count: 0, doorIds: [] },
-        closed: { count: 0, doorIds: [] },
-        edited: { count: 0, doorIds: [] },
-        notAnswered: { count: 0, doorIds: [] },
-        payerUnavailable: { count: 0, doorIds: [] },
-        pitched: { count: 0, doorIds: [] },
-        successfulCallbacks: { count: 0, doorIds: [] },
-      },
-    };
-  });
+    return defaultOutreach;
+  };
+
+  const [outreach, setOutreach] = useState<Outreach>(getInitialOutreach);
 
   // Update localStorage whenever the outreach state changes
   useEffect(() => {
-    localStorage.setItem("outreach", JSON.stringify(outreach));
+    const throttledSaveToLocalStorage = debounce(() => {
+      try {
+        localStorage.setItem("outreach", JSON.stringify(outreach));
+      } catch (error) {
+        console.error("Error writing to localStorage:", error);
+      }
+    }, 500); // Throttle for 500ms
+
+    throttledSaveToLocalStorage();
+
+    return () => {
+      throttledSaveToLocalStorage.cancel(); // Clean up throttle on unmount
+    };
   }, [outreach]);
+
+  // Debounced statistics calculation
+  useEffect(() => {
+    const debouncedUpdateStatistics = debounce(() => {
+      const updatedStatistics = calculateStatistics(outreach.doors);
+      setOutreach((prev) => ({
+        ...prev,
+        statistics: updatedStatistics,
+      }));
+    }, 300); // Debounce for 300ms
+
+    debouncedUpdateStatistics();
+
+    return () => {
+      debouncedUpdateStatistics.cancel(); // Clean up debounce on unmount
+    };
+  }, [outreach.doors]);
 
   // Function to update the postCodePrefix
   const updatePostCodePrefix = (postCodePrefix: string) => {
     setOutreach((prev) => ({ ...prev, postCodePrefix }));
   };
 
-  // Function to add a new door
+  // Function to add a new door with validation
   const addDoor = (door: Omit<Door, "id" | "createdAt">) => {
+    const validationResult = doorSchema.safeParse(door);
+    if (!validationResult.success) {
+      console.error("Invalid door data:", validationResult.error);
+      return;
+    }
+
     const newDoor: Door = {
       id: uniqid(),
       createdAt: new Date().toISOString(),
       ...door,
     };
-    setOutreach((prev) => ({
-      ...prev,
-      doors: [...prev.doors, newDoor],
-    }));
+
+    setOutreach((prev) => {
+      if (prev.doors.some((d) => d.id === newDoor.id)) {
+        console.warn("Duplicate door ID detected. Skipping update.");
+        return prev; // Prevent duplicate updates
+      }
+      return {
+        ...prev,
+        doors: [...prev.doors, newDoor],
+      };
+    });
   };
 
   // Function to update a specific door
   const updateDoor = (id: string, updatedData: Partial<Door>) => {
-    setOutreach((prev) => ({
-      ...prev,
-      doors: prev.doors.map((door) =>
+    setOutreach((prev) => {
+      const updatedDoors = prev.doors.map((door) =>
         door.id === id
           ? {
               ...door,
@@ -124,92 +192,41 @@ export const OutreachProvider: React.FC<{ children: React.ReactNode }> = ({
               editedAt: new Date().toISOString(),
             }
           : door
-      ),
-    }));
+      );
+
+      // Avoid updating if no changes were made
+      if (JSON.stringify(prev.doors) === JSON.stringify(updatedDoors)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        doors: updatedDoors,
+      };
+    });
   };
 
   // Function to delete a specific door
   const deleteDoor = (id: string) => {
-    setOutreach((prev) => ({
-      ...prev,
-      doors: prev.doors.filter((door) => door.id !== id),
-    }));
+    setOutreach((prev) => {
+      const updatedDoors = prev.doors.filter((door) => door.id !== id);
+
+      // Avoid updating if no changes were made
+      if (JSON.stringify(prev.doors) === JSON.stringify(updatedDoors)) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        doors: updatedDoors,
+      };
+    });
   };
 
   // Function to reset the entire outreach object
   const resetOutreach = () => {
-    setOutreach({
-      id: uniqid(),
-      createdAt: new Date().toISOString(),
-      postCodePrefix: "",
-      doors: [],
-      statistics: {
-        callBacks: { count: 0, doorIds: [] },
-        closed: { count: 0, doorIds: [] },
-        edited: { count: 0, doorIds: [] },
-        notAnswered: { count: 0, doorIds: [] },
-        payerUnavailable: { count: 0, doorIds: [] },
-        pitched: { count: 0, doorIds: [] },
-        successfulCallbacks: { count: 0, doorIds: [] },
-      },
-    });
+    setOutreach(defaultOutreach);
   };
-
-  // Automatically calculate statistics based on the doors array
-  useEffect(() => {
-    const calculateStatistics = () => {
-      const stats = {
-        callBacks: { count: 0, doorIds: [] as string[] },
-        closed: { count: 0, doorIds: [] as string[] },
-        edited: { count: 0, doorIds: [] as string[] },
-        notAnswered: { count: 0, doorIds: [] as string[] },
-        payerUnavailable: { count: 0, doorIds: [] as string[] },
-        pitched: { count: 0, doorIds: [] as string[] },
-        successfulCallbacks: { count: 0, doorIds: [] as string[] },
-      };
-
-      outreach.doors.forEach((door) => {
-        if (door.status?.value === doorStatusOptions.callback.value) {
-          stats.callBacks.count++;
-          stats.callBacks.doorIds.push(door.id);
-        }
-        if (door.status?.closed) {
-          stats.closed.count++;
-          stats.closed.doorIds.push(door.id);
-        }
-        if (door.editedAt) {
-          stats.edited.count++;
-          stats.edited.doorIds.push(door.id);
-        }
-        if (door.status?.value === doorStatusOptions.noAnswer.value) {
-          stats.notAnswered.count++;
-          stats.notAnswered.doorIds.push(door.id);
-        }
-        if (door.status?.value === doorStatusOptions.unavailable.value) {
-          stats.payerUnavailable.count++;
-          stats.payerUnavailable.doorIds.push(door.id);
-        }
-        if (door.status?.value === doorStatusOptions.pitched.value) {
-          stats.pitched.count++;
-          stats.pitched.doorIds.push(door.id);
-        }
-        if (
-          door.prevStatus?.value === doorStatusOptions.callback.value &&
-          door.status?.value === doorStatusOptions.closed.value
-        ) {
-          stats.successfulCallbacks.count++;
-          stats.successfulCallbacks.doorIds.push(door.id);
-        }
-      });
-
-      setOutreach((prev) => ({
-        ...prev,
-        statistics: stats,
-      }));
-    };
-
-    calculateStatistics();
-  }, [outreach.doors]);
 
   return (
     <OutreachContext.Provider
