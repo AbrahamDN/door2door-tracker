@@ -21,11 +21,11 @@ export const doorStatusOptions: DoorStatusOptionsProps = {
   noAnswer: { value: "No Answer", icon: "" },
   unavailable: { value: "Payer Unavailable", icon: "" },
   pitched: { value: "Pitched", icon: "" },
-  callback: { value: "Callback", icon: "📞" },
+  callback: { value: "Call Back", icon: "📞" },
   closed: { value: "Closed", icon: "🤑", closed: true },
 };
 export const pitchedOptions: PitchedOptionsProps = {
-  intro: { value: "Intro", icon: "✅" },
-  qualify: { value: "Qualify", icon: "✅✅" },
-  present: { value: "Present", icon: "✅✅✅" },
+  intro: { value: "Introduction", icon: "✅" },
+  qualify: { value: "Qualifying", icon: "✅✅" },
+  present: { value: "Presentation", icon: "✅✅✅" },
 };
